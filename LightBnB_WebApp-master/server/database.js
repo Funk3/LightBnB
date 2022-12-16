@@ -47,9 +47,7 @@ const getUserWithId = function (id) {
       console.log(err.message);
     });
 };
-// const getUserWithId = function (id) {
-//   return Promise.resolve(users[id]);
-// };
+
 exports.getUserWithId = getUserWithId;
 
 /**
@@ -57,12 +55,30 @@ exports.getUserWithId = getUserWithId;
  * @param {{name: string, password: string, email: string}} user
  * @return {Promise<{}>} A promise to the user.
  */
+
 const addUser = function (user) {
-  const userId = Object.keys(users).length + 1;
-  user.id = userId;
-  users[userId] = user;
-  return Promise.resolve(user);
+  return pool
+    .query(
+      `INSERT INTO users (name, password, email)
+    VALUES ($1, $2, $3)
+    RETURNING *;`,
+      [user.name, user.password, user.email]
+    )
+    .then((result) => {
+      console.log(result.rows);
+      return result.rows[0];
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
 };
+addUser({ name: 'zak', password: 'cheese', email: `zak.johansson@gmail.com` });
+// const addUser = function (user) {
+//   const userId = Object.keys(users).length + 1;
+//   user.id = userId;
+//   users[userId] = user;
+//   return Promise.resolve(user);
+// };
 exports.addUser = addUser;
 
 /// Reservations
